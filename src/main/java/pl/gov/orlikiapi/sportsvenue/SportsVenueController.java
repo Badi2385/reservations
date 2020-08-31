@@ -1,62 +1,50 @@
 package pl.gov.orlikiapi.sportsvenue;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import pl.gov.orlikiapi.exception.ResourceNotFoundException;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import pl.gov.orlikiapi.role.model.Role;
 import pl.gov.orlikiapi.sportsvenue.model.SportsVenue;
 
-import javax.validation.Valid;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-@CrossOrigin(origins = "http://localhost:4200")
-@RestController
+@Controller
 public class SportsVenueController {
 
     @Autowired
-    private SportsVenueRepository sportsVenueRepository;
+    private SportsVenueService sportsVenueService;
 
-    @GetMapping("sportsVenues")
-    public List<SportsVenue> getAllSportsVenues(){
-        return sportsVenueRepository.findAll();
+    @GetMapping("view/sportsVenues")
+    public String viewRolesPage(Model model) {
+        model.addAttribute("listSportsVenues", sportsVenueService.getAllSportsVenues());
+        return "sportsVenues";
     }
 
-    @GetMapping("sportsVenues/{id}")
-    public ResponseEntity<SportsVenue> getSportsVenueById(@PathVariable(value = "id") Long sportsVenueId)
-            throws ResourceNotFoundException {
-        SportsVenue sportsVenue = sportsVenueRepository.findById(sportsVenueId)
-                .orElseThrow(() -> new ResourceNotFoundException("SportsVenue not found for this id : " + sportsVenueId));
-        return ResponseEntity.ok().body(sportsVenue);
+    @GetMapping("view/showNewSportsVenueForm")
+    public String showNewSportsVenueForm(Model model) {
+        SportsVenue sportsVenue = new SportsVenue();
+        model.addAttribute("sportsVenue", sportsVenue);
+        return "new_sportsVenue";
     }
 
-    @PostMapping("sportsVenues")
-    public SportsVenue createSportsVenue(@Valid @RequestBody SportsVenue sportsVenue) {
-        return sportsVenueRepository.save(sportsVenue);
+    @PostMapping("view/saveSportsVenue")
+    public String saveSportsVenue(@ModelAttribute("sportsVenue") SportsVenue sportsVenue) {
+        sportsVenueService.saveSportsVenue(sportsVenue);
+        return "redirect:/view/sportsVenues";
     }
 
-    @PutMapping("sportsVenues/{id}")
-    public ResponseEntity<SportsVenue> updateSportsVenue(@PathVariable(value = "id") Long sportsVenueId,
-                                                         @Valid @RequestBody SportsVenue sportsVenueDetails) throws ResourceNotFoundException {
-        SportsVenue sportsVenue = sportsVenueRepository.findById(sportsVenueId)
-                .orElseThrow(() -> new ResourceNotFoundException("SportsVenue not found for this id : " + sportsVenueId));
-
-        sportsVenue.setCity(sportsVenueDetails.getCity());
-        sportsVenue.setStreet(sportsVenueDetails.getStreet());
-        final SportsVenue updatedSportsVenue = sportsVenueRepository.save(sportsVenue);
-        return ResponseEntity.ok(updatedSportsVenue);
-
+    @GetMapping("view/showUpdateSportsVenueForm/{id}")
+    public String showUpdateSportsVenueForm(@PathVariable(value = "id") Long id, Model model) {
+        SportsVenue sportsVenue = sportsVenueService.getSportsVenueById(id);
+        model.addAttribute("sportsVenue", sportsVenue);
+        return "update_sportsVenue";
     }
 
-    @DeleteMapping("sportsVenues/{id}")
-    public Map<String, Boolean> deleteSportsVenue(@PathVariable(value = "id") Long sportsVenueId) throws ResourceNotFoundException{
-        SportsVenue sportsVenue = sportsVenueRepository.findById(sportsVenueId)
-                .orElseThrow(() -> new ResourceNotFoundException("SportsVenue not found for this id : " + sportsVenueId));
-
-        sportsVenueRepository.delete(sportsVenue);
-        Map<String, Boolean> response = new HashMap<>();
-        response.put("deleted", Boolean.TRUE);
-        return response;
+    @GetMapping("view/deleteSportsVenue/{id}")
+    public String deleteSportsVenue(@PathVariable (value = "id") Long id) {
+        this.sportsVenueService.deleteSportsVenueById(id);
+        return "redirect:/view/sportsVenues";
     }
 }

@@ -13,6 +13,8 @@ import pl.gov.orlikiapi.user.model.User;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,6 +39,33 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
+
+    @Override
+    public void saveUser(User user) {
+        this.userRepository.save(user);
+    }
+
+    @Override
+    public User getUserById(Long id) {
+        Optional<User> optional = userRepository.findById(id);
+        User user = null;
+        if (optional.isPresent()) {
+            user = optional.get();
+        } else {
+            throw new RuntimeException("User not found for id :: " + id);
+        }
+        return user;
+    }
+
+    @Override
+    public void deleteUserById(Long id) {
+        this.userRepository.deleteById(id);
+    }
+
+    @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
         User user = userRepository.findByUsername(username);
@@ -49,4 +78,6 @@ public class UserServiceImpl implements UserService{
     private Collection<? extends GrantedAuthority> mapRolesToAuthorities(Collection<Role> roles) {
        return roles.stream().map(role -> new SimpleGrantedAuthority(role.getName())).collect(Collectors.toList());
     }
+
+
 }

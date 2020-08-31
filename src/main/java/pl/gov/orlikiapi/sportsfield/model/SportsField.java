@@ -58,6 +58,6 @@ public class SportsField {
 
     @Override
     public String toString() {
-        return "SportsField [id=" + id + ", type=" + sportsFieldType.getType() + "]";
+        return sportsVenue.getCity() + ", " + sportsVenue.getStreet() + " [" + sportsFieldType.getType() + "]";
     }
 }

@@ -50,6 +50,6 @@ public class SportsVenue {
 
     @Override
     public String toString() {
-        return "SportsVenue [id=" + id + ", city=" + city + ", street=" + street + "]";
+        return city + ", " + street;
     }
 }

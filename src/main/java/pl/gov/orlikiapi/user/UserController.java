@@ -1,61 +1,50 @@
 package pl.gov.orlikiapi.user;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import pl.gov.orlikiapi.exception.ResourceNotFoundException;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import pl.gov.orlikiapi.role.model.Role;
 import pl.gov.orlikiapi.user.model.User;
 
-import javax.validation.Valid;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-@RestController
+@Controller
 public class UserController {
 
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
 
-    @GetMapping("users")
-    public List<User> getAllUsers(){
-        return userRepository.findAll();
+    @GetMapping("view/users")
+    public String viewRolesPage(Model model) {
+        model.addAttribute("listUsers", userService.getAllUsers());
+        return "users";
     }
 
-    @GetMapping("users/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable(value = "id") Long userId)
-            throws ResourceNotFoundException {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found for this id : " + userId));
-        return ResponseEntity.ok().body(user);
+    @GetMapping("view/showNewUserForm")
+    public String showNewUserForm(Model model) {
+        User user = new User();
+        model.addAttribute("user", user);
+        return "new_user";
     }
 
-    @PostMapping("users")
-    public User createUser(@Valid @RequestBody User user) {
-        return userRepository.save(user);
+    @PostMapping("view/saveUser")
+    public String saveUser(@ModelAttribute("user") User user) {
+        userService.saveUser(user);
+        return "redirect:/view/users";
     }
 
-    @PutMapping("users/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable(value = "id") Long userId,
-                                               @Valid @RequestBody User userDetails) throws ResourceNotFoundException {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found for this id : " + userId));
-
-        user.setUsername(userDetails.getUsername());
-        final User updatedUser = userRepository.save(user);
-        return ResponseEntity.ok(updatedUser);
-
+    @GetMapping("view/showUpdateUserForm/{id}")
+    public String showUpdateUserForm(@PathVariable(value = "id") Long id, Model model) {
+        User user = userService.getUserById(id);
+        model.addAttribute("user", user);
+        return "update_user";
     }
 
-    @DeleteMapping("users/{id}")
-    public Map<String, Boolean> deleteUser(@PathVariable(value = "id") Long userId) throws ResourceNotFoundException{
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found for this id : " + userId));
-
-        userRepository.delete(user);
-        Map<String, Boolean> response = new HashMap<>();
-        response.put("deleted", Boolean.TRUE);
-        return response;
+    @GetMapping("view/deleteUser/{id}")
+    public String deleteRole(@PathVariable (value = "id") Long id) {
+        this.userService.deleteUserById(id);
+        return "redirect:/view/users";
     }
-
 }

@@ -1,61 +1,50 @@
 package pl.gov.orlikiapi.sportsfieldtype;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import pl.gov.orlikiapi.exception.ResourceNotFoundException;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import pl.gov.orlikiapi.role.model.Role;
 import pl.gov.orlikiapi.sportsfieldtype.model.SportsFieldType;
 
-import javax.validation.Valid;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-@CrossOrigin(origins = "http://localhost:4200")
-@RestController
+@Controller
 public class SportsFieldTypeController {
 
     @Autowired
-    private SportsFieldTypeRepository sportsFieldTypeRepository;
+    private SportsFieldTypeService sportsFieldTypeService;
 
-    @GetMapping("sportsFieldTypes")
-    public List<SportsFieldType> getAllSportsFieldTypes(){
-        return sportsFieldTypeRepository.findAll();
+    @GetMapping("view/fieldTypes")
+    public String viewRolesPage(Model model) {
+        model.addAttribute("listFieldTypes", sportsFieldTypeService.getAllSportsFieldTypes());
+        return "fieldTypes";
     }
 
-    @GetMapping("sportsFieldTypes/{id}")
-    public ResponseEntity<SportsFieldType> getSportsFieldTypeById(@PathVariable(value = "id") Long sportsFieldTypeId)
-            throws ResourceNotFoundException {
-        SportsFieldType sportsFieldType = sportsFieldTypeRepository.findById(sportsFieldTypeId)
-                .orElseThrow(() -> new ResourceNotFoundException("SportsFieldType not found for this id : " + sportsFieldTypeId));
-        return ResponseEntity.ok().body(sportsFieldType);
+    @GetMapping("view/showNewFieldTypeForm")
+    public String showNewRoleForm(Model model) {
+        SportsFieldType sportsFieldType = new SportsFieldType();
+        model.addAttribute("fieldType", sportsFieldType);
+        return "new_fieldType";
     }
 
-    @PostMapping("sportsFieldTypes")
-    public SportsFieldType createSportsFieldType(@Valid @RequestBody SportsFieldType sportsFieldType) {
-        return sportsFieldTypeRepository.save(sportsFieldType);
+    @PostMapping("view/saveFieldType")
+    public String saveFieldType(@ModelAttribute("fieldType") SportsFieldType sportsFieldType) {
+        sportsFieldTypeService.saveSportsFieldType(sportsFieldType);
+        return "redirect:/view/fieldTypes";
     }
 
-    @PutMapping("sportsFieldTypes/{id}")
-    public ResponseEntity<SportsFieldType> updateSportsFieldType(@PathVariable(value = "id") Long sportsFieldTypeId,
-                                                         @Valid @RequestBody SportsFieldType sportsFieldTypeDetails) throws ResourceNotFoundException {
-        SportsFieldType sportsFieldType = sportsFieldTypeRepository.findById(sportsFieldTypeId)
-                .orElseThrow(() -> new ResourceNotFoundException("SportsFieldType not found for this id : " + sportsFieldTypeId));
-
-        sportsFieldType.setType(sportsFieldTypeDetails.getType());
-        final SportsFieldType updatedSportsFieldType = sportsFieldTypeRepository.save(sportsFieldType);
-        return ResponseEntity.ok(updatedSportsFieldType);
-
+    @GetMapping("view/showUpdateFieldTypeForm/{id}")
+    public String showUpdateFieldTypeForm(@PathVariable(value = "id") Long id, Model model) {
+        SportsFieldType sportsFieldType = sportsFieldTypeService.getSportsFieldTypeById(id);
+        model.addAttribute("fieldType", sportsFieldType);
+        return "update_fieldType";
     }
 
-    @DeleteMapping("sportsFieldTypes/{id}")
-    public Map<String, Boolean> deleteSportsFieldType(@PathVariable(value = "id") Long sportsFieldTypeId) throws ResourceNotFoundException{
-        SportsFieldType sportsFieldType = sportsFieldTypeRepository.findById(sportsFieldTypeId)
-                .orElseThrow(() -> new ResourceNotFoundException("SportsFieldType not found for this id : " + sportsFieldTypeId));
-
-        sportsFieldTypeRepository.delete(sportsFieldType);
-        Map<String, Boolean> response = new HashMap<>();
-        response.put("deleted", Boolean.TRUE);
-        return response;
+    @GetMapping("view/deleteFieldType/{id}")
+    public String deleteRole(@PathVariable (value = "id") Long id) {
+        this.sportsFieldTypeService.deleteSportsFieldTypeById(id);
+        return "redirect:/view/fieldTypes";
     }
 }
