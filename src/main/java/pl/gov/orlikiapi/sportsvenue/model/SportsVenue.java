@@ -27,7 +27,7 @@ public class SportsVenue {
         this.street = street;
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
     public void setId(long id) {

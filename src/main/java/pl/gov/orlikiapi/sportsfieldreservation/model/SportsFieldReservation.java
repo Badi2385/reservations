@@ -1,5 +1,7 @@
 package pl.gov.orlikiapi.sportsfieldreservation.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import org.springframework.format.annotation.DateTimeFormat;
 import pl.gov.orlikiapi.sportsfield.model.SportsField;
 import pl.gov.orlikiapi.user.model.User;
 
@@ -24,16 +26,18 @@ public class SportsFieldReservation {
     private SportsField sportsField;
 
     @Column(name = "start_date", nullable = false)
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm")
     private Date startDate;
 
     @Column(name = "end_date", nullable = false)
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm")
     private Date endDate;
 
     public SportsFieldReservation() {
 
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 

@@ -32,7 +32,7 @@ public class SportsField {
         this.sportsVenue = sportsVenue;
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 

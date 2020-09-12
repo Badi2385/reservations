@@ -31,7 +31,7 @@
                 <li sec:authorize="isAuthenticated()"><a th:href="@{/view/reservations}">Reservations</a></li>
                 <li sec:authorize="isAuthenticated()"><a th:href="@{/view/sportsVenues}">Sports Venues</a></li>
                 <li sec:authorize="isAuthenticated()"><a th:href="@{/view/sportsFields}">Sports Fields</a></li>
-                <li sec:authorize="hasRole('ROLE_ADMIN')"><a th:href="@{/view/fieldsTypes}">Fields Types</a></li>
+                <li sec:authorize="hasRole('ROLE_ADMIN')"><a th:href="@{/view/fieldTypes}">Field Types</a></li>
                 <li sec:authorize="isAuthenticated()"><a th:href="@{/logout}">Logout</a></li>
             </ul>
         </div>

@@ -22,7 +22,7 @@ public class SportsFieldType {
         this.type = type;
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
     public void setId(long id) {
